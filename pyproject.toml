@@ -40,6 +40,9 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/pramaan/cli.py" = ["B008"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
