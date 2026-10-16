@@ -24,10 +24,20 @@ def main() -> int:
 
     python_cases = [
         ("python_eval", "result = eval(user_input)\n", "PRM-PY-DYN-001", True),
-        ("python_shell_true", "import subprocess\nsubprocess.run(cmd, shell=True)\n", "PRM-PY-SHELL-001", True),
+        (
+            "python_shell_true",
+            "import subprocess\nsubprocess.run(cmd, shell=True)\n",
+            "PRM-PY-SHELL-001",
+            True,
+        ),
         ("python_secret", 'API_KEY = "synthetic_key_material_12345"\n', "PRM-PY-SECRET-001", True),
         ("python_comment_only", "# eval(user_input)\n", "PRM-PY-DYN-001", False),
-        ("python_shell_false", "import subprocess\nsubprocess.run(cmd, shell=False)\n", "PRM-PY-SHELL-001", False),
+        (
+            "python_shell_false",
+            "import subprocess\nsubprocess.run(cmd, shell=False)\n",
+            "PRM-PY-SHELL-001",
+            False,
+        ),
         ("python_placeholder", 'API_KEY = "${SERVICE_API_KEY}"\n', "PRM-PY-SECRET-001", False),
     ]
     for name, source, rule_id, expected in python_cases:
