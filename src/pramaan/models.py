@@ -1,6 +1,6 @@
 """Shared, versioned models for runs and findings."""
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
