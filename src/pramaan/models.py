@@ -1,3 +1,4 @@
+
 """Shared, versioned models for runs and findings."""
 
 from datetime import UTC, datetime
@@ -49,8 +50,12 @@ class RunReport(BaseModel):
     tool_name: str = "Pramaan"
     tool_version: str = "0.1.0"
     run_id: str
-    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    finished_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC)
+    )
+    finished_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC)
+    )
     status: RunStatus
     input_kind: str
     input_label: str
