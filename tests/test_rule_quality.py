@@ -49,7 +49,10 @@ def test_rule_quality_expected_python_negatives(source: str) -> None:
     [
         ({"auth": {"api_key": "synthetic_key_material_12345"}}, "PRM-JSON-SECRET-001"),
         ({"debug": True}, "PRM-JSON-DEBUG-001"),
-        ([{"credentials": {"client_secret": "synthetic_secret_material_12345"}}], "PRM-JSON-SECRET-001"),
+        (
+            [{"credentials": {"client_secret": "synthetic_secret_material_12345"}}],
+            "PRM-JSON-SECRET-001",
+        ),
     ],
 )
 def test_rule_quality_expected_json_positives(value: object, expected_rule: str) -> None:
@@ -78,4 +81,10 @@ def test_findings_have_evidence_and_bounded_confidence() -> None:
         assert finding.evidence
         assert 0.0 <= finding.confidence <= 1.0
         assert finding.rule_id
-        assert finding.severity in {Severity.INFO, Severity.LOW, Severity.MEDIUM, Severity.HIGH, Severity.CRITICAL}
+        assert finding.severity in {
+            Severity.INFO,
+            Severity.LOW,
+            Severity.MEDIUM,
+            Severity.HIGH,
+            Severity.CRITICAL,
+        }
