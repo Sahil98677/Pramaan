@@ -36,3 +36,18 @@ def test_excessively_nested_json_is_rejected_safely(tmp_path: Path) -> None:
     path.write_text("[" * 10000 + "0" + "]" * 10000, encoding="utf-8")
     with pytest.raises(InputError, match="nesting is too deep"):
         load_json(path)
+
+
+def test_duplicate_json_keys_are_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "duplicate.json"
+    path.write_text('{"api_key": "first", "api_key": "second"}', encoding="utf-8")
+    with pytest.raises(InputError, match="duplicate object keys"):
+        load_json(path)
+
+
+@pytest.mark.parametrize("payload", ["NaN", "Infinity", "-Infinity"])
+def test_nonstandard_json_constants_are_rejected(tmp_path: Path, payload: str) -> None:
+    path = tmp_path / "nonstandard.json"
+    path.write_text(payload, encoding="utf-8")
+    with pytest.raises(InputError, match="non-standard numeric constant"):
+        load_json(path)

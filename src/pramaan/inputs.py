@@ -11,6 +11,25 @@ class InputError(ValueError):
     """Raised when local input cannot be safely loaded."""
 
 
+class _DuplicateJSONKeyError(ValueError):
+    """Raised when a JSON object contains an ambiguous duplicate key."""
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            # Do not echo the key: it may itself contain sensitive data.
+            raise _DuplicateJSONKeyError
+        result[key] = value
+    return result
+
+
+def _reject_nonstandard_constant(value: str) -> None:
+    # Python's JSON parser otherwise accepts NaN and Infinity extensions.
+    raise ValueError(f"Non-standard JSON constant {value} is not allowed.")
+
+
 def read_bounded_text(path: Path) -> str:
     try:
         resolved = path.resolve(strict=True)
@@ -29,10 +48,20 @@ def read_bounded_text(path: Path) -> str:
 def load_json(path: Path) -> Any:
     text = read_bounded_text(path)
     try:
-        return json.loads(text)
+        return json.loads(
+            text,
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=_reject_nonstandard_constant,
+        )
+    except _DuplicateJSONKeyError as exc:
+        raise InputError(
+            "JSON contains duplicate object keys, which are ambiguous and unsafe to analyze."
+        ) from exc
     except json.JSONDecodeError as exc:
         raise InputError(
             f"Invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
         ) from exc
     except RecursionError as exc:
         raise InputError("JSON nesting is too deep to parse safely.") from exc
+    except ValueError as exc:
+        raise InputError("JSON contains a non-standard numeric constant.") from exc

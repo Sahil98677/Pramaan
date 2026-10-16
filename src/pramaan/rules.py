@@ -24,6 +24,23 @@ _PLACEHOLDERS = {
     "not-a-secret", "redacted", "xxx", "none", "null", "test", "test-value",
 }
 _ENV_PLACEHOLDER = re.compile(r"^\$\{?[A-Z][A-Z0-9_]*\}?$")
+_MAX_KEY_DISPLAY = 120
+_MAX_EVIDENCE_LOCATION = 1800
+
+
+def _display_key(value: str) -> str:
+    """Bound untrusted key text before placing it in model fields."""
+    if len(value) <= _MAX_KEY_DISPLAY:
+        return value
+    return value[: _MAX_KEY_DISPLAY - 3] + "..."
+
+
+def _evidence_location(filename: str, pointer: str) -> str:
+    """Bound JSON paths to stay inside the Evidence schema's field limit."""
+    location = f"{filename}#{pointer or '/'}"
+    if len(location) <= _MAX_EVIDENCE_LOCATION:
+        return location
+    return location[: _MAX_EVIDENCE_LOCATION - 3] + "..."
 
 
 def _is_placeholder(value: str) -> bool:
@@ -192,6 +209,7 @@ def analyze_json_value(value: Any, filename: str = "<input>") -> list[Finding]:
                 escaped = str(key).replace("~", "~0").replace("/", "~1")
                 child_pointer = f"{pointer}/{escaped}"
                 key_text = str(key)
+                display_key = _display_key(key_text)
                 if (
                     _SENSITIVE_NAME.search(key_text)
                     and isinstance(child, str)
@@ -202,19 +220,18 @@ def analyze_json_value(value: Any, filename: str = "<input>") -> list[Finding]:
                             rule_id="PRM-JSON-SECRET-001",
                             title="Possible hard-coded credential in JSON",
                             description=(
-                                f"JSON key '{key_text}' contains a non-placeholder string "
-                                "literal and "
-                                "its name suggests credential material. The value is "
-                                "deliberately redacted."
+                                f"JSON key '{display_key}' contains a non-placeholder string "
+                                "literal and its name suggests credential material. The value "
+                                "is deliberately redacted."
                             ),
                             severity=Severity.HIGH,
                             confidence=0.78,
                             evidence=[
                                 Evidence(
                                     kind="json_path",
-                                    location=f"{filename}#{child_pointer}",
+                                    location=_evidence_location(filename, child_pointer),
                                     excerpt=(
-                                        f"Credential-like JSON key '{key_text}'; "
+                                        f"Credential-like JSON key '{display_key}'; "
                                         "value redacted."
                                     ),
                                 )

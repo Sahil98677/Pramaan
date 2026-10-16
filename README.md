@@ -9,7 +9,7 @@ Pramaan is an early-stage security analysis project. It parses local files as da
 ## Current scope
 
 - **Inputs:** local Python (`.py`) source files and JSON documents.
-- **Execution:** local analysis only. Source code is parsed using Python's AST and is never imported or executed.
+- **Execution:** local analysis only. Source code is parsed using Python's AST and is never imported or executed. JSON input is size-bounded and rejects duplicate object keys and non-standard numeric constants.
 - **Output:** versioned JSON report with run status, stable rule IDs, severity, confidence, evidence, and remediation.
 - **Current checks:** direct `eval()` / `exec()` calls; recognized `subprocess` calls with `shell=True`; credential-like string assignments in Python; credential-like string values and enabled debug flags in JSON.
 - **Limitations:** no data-flow analysis, alias/import resolution, framework-specific analysis, dependency scanning, network scanning, or exploit execution. The rules may produce false positives and false negatives.

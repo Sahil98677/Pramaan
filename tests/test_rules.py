@@ -80,3 +80,14 @@ def test_json_escapes_json_pointer_segments() -> None:
     findings = analyze_json_value({"auth/token": "fake-token-value-long"}, filename="x.json")
     assert len(findings) == 1
     assert "/auth~1token" in findings[0].evidence[0].location
+
+
+def test_long_json_key_is_bounded_in_finding_fields() -> None:
+    long_key = "api_key_" + ("x" * 5000)
+    findings = analyze_json_value({long_key: "synthetic-secret-value"}, filename="large.json")
+    assert len(findings) == 1
+    finding = findings[0]
+    assert len(finding.description) <= 4000
+    assert len(finding.evidence[0].location or "") <= 2048
+    assert len(finding.evidence[0].excerpt or "") <= 4000
+    assert "synthetic-secret-value" not in json.dumps(finding.model_dump(mode="json"))
