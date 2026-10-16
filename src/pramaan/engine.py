@@ -5,7 +5,7 @@ from typing import Any
 from uuid import uuid4
 
 from .inputs import InputError, load_json, read_bounded_text
-from .models import Evidence, RunReport, RunStatus
+from .models import RunReport, RunStatus
 
 
 def analyze_json(path: Path) -> RunReport:
