@@ -1,0 +1,6 @@
+{
+  "debug": false,
+  "service": {
+    "api_key": "${SERVICE_API_KEY}"
+  }
+}

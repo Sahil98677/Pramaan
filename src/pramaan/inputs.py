@@ -34,3 +34,5 @@ def load_json(path: Path) -> Any:
         raise InputError(
             f"Invalid JSON at line {exc.lineno}, column {exc.colno}: {exc.msg}"
         ) from exc
+    except RecursionError as exc:
+        raise InputError("JSON nesting is too deep to parse safely.") from exc

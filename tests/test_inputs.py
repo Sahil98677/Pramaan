@@ -29,3 +29,10 @@ def test_json_fixture_round_trip(tmp_path: Path) -> None:
     path = tmp_path / "data.json"
     path.write_text(json.dumps(data), encoding="utf-8")
     assert load_json(path) == data
+
+
+def test_excessively_nested_json_is_rejected_safely(tmp_path: Path) -> None:
+    path = tmp_path / "deep.json"
+    path.write_text("[" * 10000 + "0" + "]" * 10000, encoding="utf-8")
+    with pytest.raises(InputError, match="nesting is too deep"):
+        load_json(path)
